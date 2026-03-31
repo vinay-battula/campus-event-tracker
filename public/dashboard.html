@@ -1315,18 +1315,32 @@
       let userRegistrations = [];
 
       // ── AUTH CHECK ──
-      (function () {
-        const u = localStorage.getItem("user");
-        const t = localStorage.getItem("token");
-        if (!u || !t) {
-          window.location.href = "login.html";
-          return;
-        }
-        currentUser = JSON.parse(u);
-        document.getElementById("userName").textContent = currentUser.name;
-        document.getElementById("userAvatar").textContent =
-          currentUser.name[0].toUpperCase();
-      })();
+      // ── AUTH CHECK ──
+(async function () {
+  try {
+    const res = await fetch(`${API}/api/auth/me`, {
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    if (!data.user) {
+      window.location.href = "/login.html";
+      return;
+    }
+
+    currentUser = data.user;
+
+    document.getElementById("userName").textContent =
+      currentUser.full_name;
+
+    document.getElementById("userAvatar").textContent =
+      currentUser.full_name[0].toUpperCase();
+
+  } catch (e) {
+    window.location.href = "/login.html";
+  }
+})();
 
       // ── TOAST ──
       function toast(msg, icon = "✅", duration = 3500) {
