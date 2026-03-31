@@ -1,32 +1,32 @@
-<script>
-async function loginUser(e) {
-e.preventDefault();
+<!-- <script>
+  async function loginUser(e) {
+    e.preventDefault();
 
-const email = document.getElementById("email").value;
-const password = document.getElementById("password").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-const res = await fetch("/api/auth/login", {
-method: "POST",
-headers: {
-"Content-Type": "application/json",
-},
-credentials: "include", // 🔥 MUST
-body: JSON.stringify({ email, password }),
-});
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include", // 🔥 MUST
+      body: JSON.stringify({ email, password }),
+    });
 
-const data = await res.json();
+    const data = await res.json();
 
-if (data.success) {
-// 🔥 THIS LINE IMPORTANT
-window.location.href = "/dashboard.html";
-} else {
-alert(data.error);
-}
-}
-if (data.success) {
-localStorage.setItem("token", data.token);
-localStorage.setItem("user", JSON.stringify(data.user));
+    if (data.success) {
+      // 🔥 THIS LINE IMPORTANT
+      window.location.href = "/dashboard.html";
+    } else {
+      alert(data.error);
+    }
+  }
+  if (data.success) {
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
 
-window.location.href = "/dashboard.html";
-}
-</script>
+    window.location.href = "/dashboard.html";
+  }
+</script> -->
