@@ -1315,22 +1315,16 @@
       let userRegistrations = [];
 
       // ── AUTH CHECK ──
-      (function () {
-  const u = localStorage.getItem("user");
-  const t = localStorage.getItem("token");
-
-  if (!u || !t) {
-    // ❌ redirect remove cheyyali
-    alert("Please login first");
-    return;
-  }
-
+     if (!u || !t) {
+  console.log("User not logged in");
+  // redirect cheyyaku, alert kuda vaddu
+} else {
   currentUser = JSON.parse(u);
 
   document.getElementById("userName").textContent = currentUser.name;
   document.getElementById("userAvatar").textContent =
     currentUser.name[0].toUpperCase();
-})();
+}
       // ── TOAST ──
       function toast(msg, icon = "✅", duration = 3500) {
         const el = document.getElementById("toast");
@@ -1555,39 +1549,46 @@
         }
       }
 
-      // ── UPLOAD EVENT ──
       async function uploadEvent(e) {
-        e.preventDefault();
-        const form = document.getElementById("uploadForm");
-        const formData = new FormData(form);
-        try {
-          const btn = form.querySelector(".btn-upload");
-          btn.textContent = "⌛ Uploading...";
-          btn.disabled = true;
-          const res = await fetch(`${API}/api/events`, {
-            method: "POST",
-            headers: {
-              Authorization: "Bearer " + localStorage.getItem("token"),
-            },
-            credentials: "include",
-            body: formData,
-          });
-          const data = await res.json();
-          btn.textContent = "🚀 Submit Event";
-          btn.disabled = false;
-          if (data.success) {
-            toast("🎉 Event uploaded successfully!", "✅");
-            form.reset();
-            showSection("explore");
-            loadEvents(1);
-          } else {
-            toast("❌ " + data.error, "❌");
-          }
-        } catch (e) {
-          toast("❌ Upload failed", "❌");
-        }
-      }
+  e.preventDefault();
 
+  const form = document.getElementById("uploadForm");
+  const formData = new FormData(form);
+
+  try {
+    const btn = form.querySelector(".btn-upload");
+    btn.textContent = "⌛ Uploading...";
+    btn.disabled = true;
+
+    const res = await fetch(`${API}/api/events`, {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    btn.textContent = "🚀 Submit Event";
+    btn.disabled = false;
+
+    if (data.success) {
+      alert("🎉 Event uploaded successfully!");
+
+      form.reset();
+
+      // ✅ redirect to dashboard
+      window.location.href = "dashboard.html";
+
+    } else {
+      alert("❌ " + data.error);
+    }
+
+  } catch (e) {
+    alert("❌ Upload failed");
+  }
+}
       // ── MY EVENTS ──
       async function loadMyEvents() {
         try {
