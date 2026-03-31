@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Upload Event — CampusEvents</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      :root {
+        --p: #6a0dad;
+        --d: #1a1a6e;
+        --a: #f9c74f;
+        --bg: #07071a;
+        --card: rgba(255, 255, 255, 0.05);
+        --b: rgba(255, 255, 255, 0.1);
+        --t: rgba(255, 255, 255, 0.92);
+        --s: rgba(255, 255, 255, 0.5);
+      }
+      body {
+        background: var(--bg);
+        color: var(--t);
+        font-family: "Segoe UI", sans-serif;
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse at 20% 30%,
+            rgba(106, 13, 173, 0.18),
+            transparent 55%
+          ),
+          radial-gradient(
+            ellipse at 80% 70%,
+            rgba(26, 26, 110, 0.2),
+            transparent 55%
+          );
+        pointer-events: none;
+      }
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        height: 68px;
+        background: rgba(7, 7, 26, 0.88);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--b);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 30px;
+      }
+      .nav-logo {
+        font-size: 1.4rem;
+        font-weight: 900;
+        text-decoration: none;
+        background: linear-gradient(135deg, #fff, var(--a));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .nav-menu {
+        display: flex;
+        gap: 4px;
+        list-style: none;
+      }
+      .nav-menu a {
+        color: var(--s);
+        text-decoration: none;
+        padding: 8px 14px;
+        border-radius: 10px;
+        font-size: 0.87rem;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+      .nav-menu a:hover,
+      .nav-menu a.active {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .nav-r {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .user-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid var(--b);
+        border-radius: 30px;
+        padding: 5px 14px 5px 5px;
+      }
+      .av {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--p), var(--d));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 800;
+      }
+      .btn-lo {
+        padding: 8px 16px;
+        background: rgba(231, 76, 60, 0.2);
+        border: 1px solid rgba(231, 76, 60, 0.35);
+        color: #ff7675;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.83rem;
+        transition: all 0.3s;
+      }
+      .btn-lo:hover {
+        background: rgba(231, 76, 60, 0.35);
+      }
+
+      /* PAGE CONTENT */
+      .page {
+        position: relative;
+        z-index: 1;
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 50px 24px 80px;
+      }
+      .page-header {
+        text-align: center;
+        margin-bottom: 42px;
+      }
+      .page-header .icon {
+        font-size: 3.5rem;
+        display: block;
+        margin-bottom: 14px;
+        animation: bounce 2s ease-in-out infinite;
+      }
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      .page-header h1 {
+        font-size: 2.4rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #fff, var(--a));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 8px;
+      }
+      .page-header p {
+        color: var(--s);
+        font-size: 1rem;
+      }
+
+      /* FORM CARD */
+      .form-card {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 26px;
+        padding: 42px;
+        box-shadow:
+          0 20px 50px rgba(0, 0, 0, 0.35),
+          0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+        transform-style: preserve-3d;
+        animation: cardUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      @keyframes cardUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      /* STEPS INDICATOR */
+      .steps-ind {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        margin-bottom: 36px;
+      }
+      .si {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+      }
+      .si-dot {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        font-weight: 800;
+        transition: all 0.4s;
+      }
+      .si.done .si-dot,
+      .si.active .si-dot {
+        background: linear-gradient(135deg, var(--p), var(--d));
+        border-color: var(--p);
+        box-shadow: 0 0 16px rgba(106, 13, 173, 0.5);
+      }
+      .si-lbl {
+        font-size: 0.7rem;
+        color: var(--s);
+        font-weight: 600;
+      }
+      .si-line {
+        width: 60px;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.1);
+        margin-bottom: 20px;
+        transition: background 0.4s;
+      }
+      .si.done + .si-line {
+        background: var(--p);
+      }
+
+      /* FORM ROWS */
+      .fr {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+      .fg {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+      .fg.full {
+        grid-column: 1/-1;
+      }
+      .fg label {
+        font-size: 0.82rem;
+        color: rgba(255, 255, 255, 0.65);
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .fg label .req {
+        color: var(--a);
+      }
+      .fg input,
+      .fg select,
+      .fg textarea {
+        padding: 13px 16px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1.5px solid rgba(255, 255, 255, 0.1);
+        border-radius: 13px;
+        color: #fff;
+        font-size: 0.92rem;
+        outline: none;
+        transition: all 0.3s;
+        font-family: inherit;
+      }
+      .fg input::placeholder,
+      .fg textarea::placeholder {
+        color: rgba(255, 255, 255, 0.27);
+      }
+      .fg input:focus,
+      .fg select:focus,
+      .fg textarea:focus {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(106, 13, 173, 0.8);
+        box-shadow: 0 0 0 3px rgba(106, 13, 173, 0.2);
+      }
+      .fg select option {
+        background: #1a1a6e;
+        color: #fff;
+      }
+      .fg textarea {
+        resize: vertical;
+        height: 105px;
+      }
+
+      /* FILE DROP */
+      .file-drop {
+        border: 2px dashed rgba(255, 255, 255, 0.15);
+        border-radius: 16px;
+        padding: 32px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+      }
+      .file-drop:hover,
+      .file-drop.drag {
+        border-color: rgba(106, 13, 173, 0.7);
+        background: rgba(106, 13, 173, 0.1);
+      }
+      .file-drop .fd-icon {
+        font-size: 2.8rem;
+        display: block;
+        margin-bottom: 10px;
+      }
+      .file-drop p {
+        color: var(--s);
+        font-size: 0.88rem;
+      }
+      .file-drop p span {
+        color: var(--a);
+        font-weight: 700;
+      }
+      .file-drop input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+      .preview-img {
+        width: 100%;
+        max-height: 180px;
+        object-fit: cover;
+        border-radius: 12px;
+        margin-top: 12px;
+        display: none;
+      }
+
+      /* SUBMIT */
+      .btn-submit {
+        width: 100%;
+        padding: 16px;
+        margin-top: 10px;
+        background: linear-gradient(135deg, var(--p), var(--d));
+        color: #fff;
+        font-size: 1.05rem;
+        font-weight: 800;
+        border: none;
+        border-radius: 16px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s;
+        box-shadow: 0 8px 28px rgba(106, 13, 173, 0.4);
+      }
+      .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 36px rgba(106, 13, 173, 0.55);
+      }
+      .btn-submit::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.12),
+          transparent
+        );
+        pointer-events: none;
+      }
+      .btn-submit.loading::after {
+        content: "";
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        position: absolute;
+        right: 22px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      @keyframes spin {
+        to {
+          transform: translateY(-50%) rotate(360deg);
+        }
+      }
+
+      /* ALERT */
+      .alert {
+        padding: 14px 18px;
+        border-radius: 14px;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+        display: none;
+        animation: slideIn 0.3s;
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-8px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .alert-err {
+        background: rgba(231, 76, 60, 0.18);
+        border: 1px solid rgba(231, 76, 60, 0.35);
+        color: #ff7675;
+      }
+      .alert-ok {
+        background: rgba(39, 174, 96, 0.18);
+        border: 1px solid rgba(39, 174, 96, 0.35);
+        color: #55efc4;
+      }
+
+      /* SUCCESS OVERLAY */
+      .success-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        z-index: 800;
+        align-items: center;
+        justify-content: center;
+      }
+      .success-overlay.show {
+        display: flex;
+      }
+      .suc-box {
+        background: linear-gradient(145deg, #12122a, #1a1a40);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 28px;
+        padding: 50px 42px;
+        text-align: center;
+        max-width: 420px;
+        width: 90%;
+        animation: mIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      @keyframes mIn {
+        from {
+          transform: scale(0.7);
+          opacity: 0;
+        }
+        to {
+          transform: none;
+          opacity: 1;
+        }
+      }
+      .suc-box .si-big {
+        font-size: 5rem;
+        display: block;
+        margin-bottom: 16px;
+        animation: pop 0.6s ease;
+      }
+      @keyframes pop {
+        0% {
+          transform: scale(0);
+        }
+        70% {
+          transform: scale(1.2);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .suc-box h2 {
+        font-size: 1.8rem;
+        font-weight: 900;
+        margin-bottom: 8px;
+      }
+      .suc-box p {
+        color: var(--s);
+        margin-bottom: 28px;
+        line-height: 1.6;
+      }
+      .suc-btn {
+        padding: 14px 36px;
+        background: linear-gradient(135deg, var(--p), var(--d));
+        color: #fff;
+        border: none;
+        border-radius: 16px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+      }
+      .suc-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      @media (max-width: 600px) {
+        .fr {
+          grid-template-columns: 1fr;
+        }
+        .form-card {
+          padding: 24px;
+        }
+        .nav-menu {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- NAV -->
+    <nav>
+      <a href="index.html" class="nav-logo">🎓 CampusEvents</a>
+      <ul class="nav-menu">
+        <li><a href="dashboard.html">🔍 Explore</a></li>
+        <li><a href="upload.html" class="active">📤 Upload Event</a></li>
+        <li><a href="my-events.html">📋 My Events</a></li>
+        <li><a href="my-regs.html">✅ Registrations</a></li>
+      </ul>
+      <div class="nav-r">
+        <div class="user-chip">
+          <div class="av" id="avEl">?</div>
+          <span id="unEl" style="font-size: 0.85rem; font-weight: 600"
+            >Guest</span
+          >
+        </div>
+        <button class="btn-lo" onclick="logout()">🚪 Logout</button>
+      </div>
+    </nav>
+
+    <div class="page">
+      <div class="page-header">
+        <span class="icon">📤</span>
+        <h1>Upload Your Event</h1>
+        <p>Share your college event with students across India</p>
+      </div>
+
+      <div class="form-card">
+        <!-- STEPS INDICATOR -->
+        <div class="steps-ind">
+          <div class="si active" id="si1">
+            <div class="si-dot">1</div>
+            <div class="si-lbl">Basic Info</div>
+          </div>
+          <div class="si-line"></div>
+          <div class="si" id="si2">
+            <div class="si-dot">2</div>
+            <div class="si-lbl">Details</div>
+          </div>
+          <div class="si-line"></div>
+          <div class="si" id="si3">
+            <div class="si-dot">3</div>
+            <div class="si-lbl">Media</div>
+          </div>
+        </div>
+
+        <div class="alert alert-err" id="errBox"></div>
+        <div class="alert alert-ok" id="okBox"></div>
+
+        <form
+          id="uploadForm"
+          enctype="multipart/form-data"
+          onsubmit="submitEvent(event)"
+        >
+          <!-- SECTION 1: BASIC INFO -->
+          <div class="fr">
+            <div class="fg">
+              <label>Event Title <span class="req">*</span></label>
+              <input
+                type="text"
+                name="title"
+                placeholder="e.g. National Hackathon 2025"
+                required
+              />
+            </div>
+            <div class="fg">
+              <label>Category <span class="req">*</span></label>
+              <select name="category" required>
+                <option value="">— Select —</option>
+                <option value="hackathon">💻 Hackathon</option>
+                <option value="workshop">🔧 Workshop</option>
+                <option value="ideathon">💡 Ideathon</option>
+                <option value="seminar">📢 Seminar</option>
+                <option value="cultural">🎭 Cultural</option>
+                <option value="sports">⚽ Sports</option>
+                <option value="tech_talk">🎤 Tech Talk</option>
+                <option value="bootcamp">🚀 Bootcamp</option>
+                <option value="other">🎯 Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="fr">
+            <div class="fg">
+              <label>College Name <span class="req">*</span></label>
+              <input
+                type="text"
+                name="college"
+                placeholder="e.g. IIT Delhi"
+                required
+              />
+            </div>
+            <div class="fg">
+              <label>Venue <span class="req">*</span></label>
+              <input
+                type="text"
+                name="venue"
+                placeholder="e.g. Main Auditorium"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="fr">
+            <div class="fg">
+              <label>Event Date <span class="req">*</span></label>
+              <input type="date" name="event_date" required />
+            </div>
+            <div class="fg">
+              <label>Event Time <span class="req">*</span></label>
+              <input type="time" name="event_time" required />
+            </div>
+          </div>
+
+          <!-- SECTION 2: DETAILS -->
+          <div class="fr" style="margin-top: 8px">
+            <div class="fg">
+              <label>Last Registration Date</label>
+              <input type="date" name="last_date" />
+            </div>
+            <div class="fg">
+              <label>Total Seats <span class="req">*</span></label>
+              <input
+                type="number"
+                name="total_seats"
+                placeholder="100"
+                min="1"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="fr">
+            <div class="fg">
+              <label>Prize Pool (if any)</label>
+              <input
+                type="text"
+                name="prize_pool"
+                placeholder="e.g. ₹1,00,000"
+              />
+            </div>
+            <div class="fg">
+              <label>Team Size</label>
+              <input
+                type="text"
+                name="team_size"
+                placeholder="e.g. 2-4 members"
+              />
+            </div>
+          </div>
+
+          <div class="fr">
+            <div class="fg">
+              <label>Registration Fee (₹) — 0 for Free</label>
+              <input
+                type="number"
+                name="fee"
+                placeholder="0"
+                min="0"
+                value="0"
+              />
+            </div>
+            <div class="fg">
+              <label>External Registration Link</label>
+              <input
+                type="url"
+                name="registration_link"
+                placeholder="https://devfolio.co/..."
+              />
+            </div>
+          </div>
+
+          <div class="fr" style="grid-template-columns: 1fr">
+            <div class="fg full">
+              <label>Event Description</label>
+              <textarea
+                name="description"
+                placeholder="Describe your event — eligibility, perks, agenda..."
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- SECTION 3: POSTER -->
+          <div class="fg full" style="margin-bottom: 22px">
+            <label>Event Poster (JPG/PNG, max 5MB)</label>
+            <div
+              class="file-drop"
+              id="fileDrop"
+              ondragover="
+                event.preventDefault();
+                this.classList.add('drag');
+              "
+              ondragleave="this.classList.remove('drag')"
+              ondrop="handleDrop(event)"
+            >
+              <span class="fd-icon">🖼️</span>
+              <p>Drag & drop your poster here or <span>browse</span></p>
+              <p style="font-size: 0.75rem; margin-top: 5px">
+                PNG, JPG, WEBP — max 5MB
+              </p>
+              <input
+                type="file"
+                name="poster"
+                id="posterInput"
+                accept="image/*"
+                onchange="previewPoster(this)"
+              />
+            </div>
+            <img id="previewImg" class="preview-img" />
+          </div>
+
+          <button type="submit" class="btn-submit" id="submitBtn">
+            🚀 Upload Event to CampusEvents
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- SUCCESS OVERLAY -->
+    <div class="success-overlay" id="successOverlay">
+      <div class="suc-box">
+        <span class="si-big">🎉</span>
+        <h2>Event Uploaded!</h2>
+        <p>
+          Your event is now live on CampusEvents.<br />Students from across
+          India can now discover & register!
+        </p>
+        <a href="dashboard.html" class="suc-btn">🔍 View All Events</a
+        ><br /><br />
+        <a
+          href="my-events.html"
+          style="color: var(--a); font-size: 0.88rem; text-decoration: none"
+          >📋 View My Events →</a
+        >
+      </div>
+    </div>
+
+    <script>
+      (() => {
+        const u = localStorage.getItem("user"),
+          t = localStorage.getItem("token");
+        if (!u || !t) {
+          location.href = "login.html";
+          return;
+        }
+        const user = JSON.parse(u);
+        document.getElementById("avEl").textContent =
+          user.full_name[0].toUpperCase();
+        document.getElementById("unEl").textContent =
+          user.full_name.split(" ")[0];
+        // Pre-fill college
+        const form = document.getElementById("uploadForm");
+        form.querySelector('[name="college"]').value = user.college || "";
+      })();
+
+      /* POSTER PREVIEW */
+      function previewPoster(input) {
+        const file = input.files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+          alert("File too large! Max 5MB.");
+          input.value = "";
+          return;
+        }
+        const r = new FileReader();
+        r.onload = (e) => {
+          const img = document.getElementById("previewImg");
+          img.src = e.target.result;
+          img.style.display = "block";
+          document.querySelector(".file-drop .fd-icon").textContent = "✅";
+        };
+        r.readAsDataURL(file);
+      }
+
+      function handleDrop(e) {
+        e.preventDefault();
+        document.getElementById("fileDrop").classList.remove("drag");
+        const file = e.dataTransfer.files[0];
+        if (file) {
+          const inp = document.getElementById("posterInput");
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          inp.files = dt.files;
+          previewPoster(inp);
+        }
+      }
+
+      /* STEP INDICATOR */
+      function updateSteps(n) {
+        for (let i = 1; i <= 3; i++) {
+          const el = document.getElementById("si" + i);
+          el.classList.remove("active", "done");
+          if (i < n) el.classList.add("done");
+          else if (i === n) el.classList.add("active");
+        }
+      }
+
+      document
+        .getElementById("uploadForm")
+        .addEventListener("input", function () {
+          const data = new FormData(this);
+          const title = data.get("title"),
+            cat = data.get("category"),
+            college = data.get("college"),
+            venue = data.get("venue");
+          if (title && cat && college && venue) updateSteps(2);
+          const d = data.get("event_date"),
+            t = data.get("event_time"),
+            s = data.get("total_seats");
+          if (d && t && s) updateSteps(3);
+        });
+
+      async function submitEvent(e) {
+        e.preventDefault();
+        const btn = document.getElementById("submitBtn");
+        btn.classList.add("loading");
+        btn.disabled = true;
+        document.getElementById("errBox").style.display = "none";
+        document.getElementById("okBox").style.display = "none";
+
+        try {
+          const form = document.getElementById("uploadForm");
+          const fd = new FormData(form);
+          const r = await fetch("/api/events", {
+            method: "POST",
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+            credentials: "include",
+            body: fd,
+          });
+          const d = await r.json();
+          if (d.success) {
+            document.getElementById("successOverlay").classList.add("show");
+          } else {
+            const err = document.getElementById("errBox");
+            err.textContent = "❌ " + (d.error || "Upload failed");
+            err.style.display = "block";
+          }
+        } catch (ex) {
+          const err = document.getElementById("errBox");
+          err.textContent = "❌ Connection error. Please try again.";
+          err.style.display = "block";
+        } finally {
+          btn.classList.remove("loading");
+          btn.disabled = false;
+        }
+      }
+
+      async function logout() {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+        localStorage.clear();
+        location.href = "login.html";
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1532 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Admin Panel — CampusEvents</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      :root {
+        --bg: #06060f;
+        --sidebar: #0d0d1e;
+        --card: rgba(255, 255, 255, 0.04);
+        --border: rgba(255, 255, 255, 0.08);
+        --primary: #6a0dad;
+        --accent: #f9c74f;
+        --text: #e8e8ff;
+        --sub: rgba(255, 255, 255, 0.5);
+        --danger: #e74c3c;
+        --success: #27ae60;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", sans-serif;
+        display: flex;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* ═══ SIDEBAR ═══ */
+      .sidebar {
+        width: 260px;
+        background: var(--sidebar);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 100;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+      }
+      .sidebar-logo {
+        padding: 24px 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      :root {
+        --accent: #6366f1; /* accent color */
+      }
+
+      .sidebar-logo h2 {
+        font-size: 1.3rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #ffffff, var(--accent));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        -webkit-text-fill-color: transparent;
+      }
+      .sidebar-logo p {
+        font-size: 0.75rem;
+        color: var(--sub);
+        margin-top: 4px;
+      }
+      .sidebar-nav {
+        flex: 1;
+        padding: 16px 12px;
+        overflow-y: auto;
+      }
+      .nav-section {
+        font-size: 0.7rem;
+        color: var(--sub);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 12px 8px 8px;
+        margin-top: 4px;
+      }
+      .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 11px 14px;
+        border-radius: 12px;
+        color: var(--sub);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        margin-bottom: 2px;
+      }
+      .sidebar-link:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+      }
+      .sidebar-link.active {
+        background: linear-gradient(
+          135deg,
+          rgba(106, 13, 173, 0.4),
+          rgba(26, 26, 110, 0.3)
+        );
+        color: white;
+        border: 1px solid rgba(106, 13, 173, 0.3);
+      }
+      .sidebar-link .badge-count {
+        margin-left: auto;
+        background: var(--danger);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.7rem;
+      }
+      .sidebar-footer {
+        padding: 16px;
+        border-top: 1px solid var(--border);
+      }
+      .admin-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .admin-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--primary), #1a1a6e);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+      }
+      .admin-name {
+        font-size: 0.88rem;
+        font-weight: 700;
+      }
+      .admin-role {
+        font-size: 0.72rem;
+        color: var(--sub);
+      }
+      .btn-admin-logout {
+        width: 100%;
+        padding: 10px;
+        background: rgba(231, 76, 60, 0.15);
+        border: 1px solid rgba(231, 76, 60, 0.3);
+        color: #ff7675;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.3s;
+      }
+      .btn-admin-logout:hover {
+        background: rgba(231, 76, 60, 0.3);
+      }
+
+      /* ═══ MAIN CONTENT ═══ */
+      .main-content {
+        margin-left: 260px;
+        flex: 1;
+        padding: 30px;
+        min-height: 100vh;
+      }
+
+      /* TOPBAR */
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+      .topbar h1 {
+        font-size: 1.8rem;
+        font-weight: 900;
+      }
+      .topbar h1 span {
+        color: var(--accent);
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .time-badge {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-size: 0.82rem;
+        color: var(--sub);
+      }
+
+      /* ═══ STATS CARDS 3D ═══ */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 18px;
+        margin-bottom: 30px;
+      }
+      .stat-card-3d {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 22px 20px;
+        transform-style: preserve-3d;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow:
+          0 8px 25px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        position: relative;
+        overflow: hidden;
+      }
+      .stat-card-3d::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.03) 0%,
+          transparent 60%
+        );
+      }
+      .stat-card-3d:hover {
+        transform: translateY(-6px) rotateX(5deg);
+        box-shadow: 0 20px 40px rgba(106, 13, 173, 0.25);
+      }
+      .sc-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+      :root {
+        --accent: #6366f1; /* accent color */
+      }
+
+      .sc-num {
+        font-size: 2.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--accent), #e879f9);
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        -webkit-text-fill-color: transparent;
+      }
+      .sc-label {
+        color: var(--sub);
+        font-size: 0.8rem;
+        margin-top: 4px;
+      }
+      .sc-change {
+        font-size: 0.75rem;
+        margin-top: 6px;
+        color: #55efc4;
+      }
+      .sc-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+      }
+
+      /* SECTIONS */
+      .admin-section {
+        display: none;
+      }
+      .admin-section.active {
+        display: block;
+      }
+
+      /* TABLE */
+      .table-wrap {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        overflow: hidden;
+      }
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--border);
+      }
+      .table-header h3 {
+        font-size: 1rem;
+        font-weight: 700;
+      }
+      .search-input {
+        padding: 8px 16px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text);
+        font-size: 0.85rem;
+        outline: none;
+        min-width: 200px;
+      }
+      .search-input::placeholder {
+        color: var(--sub);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      thead {
+        background: rgba(255, 255, 255, 0.04);
+      }
+      th {
+        padding: 12px 18px;
+        text-align: left;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--sub);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      td {
+        padding: 12px 18px;
+        font-size: 0.87rem;
+        border-top: 1px solid var(--border);
+      }
+      tr:hover td {
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .tbl-badge {
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 700;
+      }
+      .badge-active {
+        background: rgba(39, 174, 96, 0.2);
+        color: #55efc4;
+      }
+      .badge-inactive {
+        background: rgba(231, 76, 60, 0.2);
+        color: #ff7675;
+      }
+      .badge-approved {
+        background: rgba(39, 174, 96, 0.2);
+        color: #55efc4;
+      }
+      .badge-pending {
+        background: rgba(249, 199, 79, 0.2);
+        color: var(--accent);
+      }
+      .badge-rejected {
+        background: rgba(231, 76, 60, 0.2);
+        color: #ff7675;
+      }
+      .tbl-actions {
+        display: flex;
+        gap: 6px;
+      }
+      .btn-tbl {
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+      .btn-edit {
+        background: rgba(52, 152, 219, 0.2);
+        color: #74b9ff;
+        border: 1px solid rgba(52, 152, 219, 0.3);
+      }
+      .btn-del {
+        background: rgba(231, 76, 60, 0.2);
+        color: #ff7675;
+        border: 1px solid rgba(231, 76, 60, 0.3);
+      }
+      .btn-toggle {
+        background: rgba(249, 199, 79, 0.2);
+        color: var(--accent);
+        border: 1px solid rgba(249, 199, 79, 0.3);
+      }
+      .btn-view {
+        background: rgba(106, 13, 173, 0.2);
+        color: #a78bfa;
+        border: 1px solid rgba(106, 13, 173, 0.3);
+      }
+      .btn-tbl:hover {
+        transform: scale(1.08);
+      }
+
+      /* CHARTS AREA */
+      .charts-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 24px;
+      }
+      .chart-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 20px;
+      }
+      .chart-card h3 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-bottom: 16px;
+        color: var(--sub);
+      }
+      .bar-chart {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .bar-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .bar-label {
+        font-size: 0.78rem;
+        color: var(--sub);
+        width: 90px;
+        text-align: right;
+        flex-shrink: 0;
+      }
+      .bar-track {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 6px;
+        height: 22px;
+        overflow: hidden;
+      }
+      .bar-fill {
+        height: 100%;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 8px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: white;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        transition: width 1s ease;
+      }
+
+      /* EDIT MODAL */
+      .edit-modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        z-index: 500;
+        align-items: center;
+        justify-content: center;
+      }
+      .edit-modal-backdrop.show {
+        display: flex;
+      }
+      .edit-modal {
+        background: #12122a;
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 36px;
+        max-width: 560px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        animation: modalIn 0.3s ease;
+      }
+      @keyframes modalIn {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .edit-modal h3 {
+        font-size: 1.3rem;
+        margin-bottom: 22px;
+        color: var(--accent);
+      }
+      .ef-group {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        margin-bottom: 16px;
+      }
+      .ef-group label {
+        font-size: 0.8rem;
+        color: var(--sub);
+        font-weight: 600;
+      }
+      .ef-group input,
+      .ef-group select,
+      .ef-group textarea {
+        padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text);
+        font-size: 0.9rem;
+        outline: none;
+        font-family: inherit;
+      }
+      .ef-group textarea {
+        height: 80px;
+        resize: vertical;
+      }
+      .ef-group select option {
+        background: #1a1a6e;
+      }
+      .edit-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 6px;
+      }
+      .btn-save {
+        padding: 11px 28px;
+        background: linear-gradient(135deg, var(--primary), #1a1a6e);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+      .btn-cancel {
+        padding: 11px 20px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border);
+        color: var(--sub);
+        border-radius: 10px;
+        cursor: pointer;
+      }
+
+      /* TOAST */
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 999;
+        background: rgba(13, 13, 30, 0.96);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 13px 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text);
+        font-size: 0.88rem;
+        max-width: 300px;
+        transform: translateX(400px);
+        transition: transform 0.4s ease;
+      }
+      .toast.show {
+        transform: translateX(0);
+      }
+
+      /* ADMIN LOGIN OVERLAY */
+      .login-overlay {
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(ellipse at center, #1a0050, #06060f);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .login-box {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 24px;
+        padding: 44px;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      }
+      .login-box .admin-icon {
+        font-size: 3.5rem;
+        margin-bottom: 12px;
+      }
+      .login-box h2 {
+        font-size: 1.6rem;
+        font-weight: 900;
+        margin-bottom: 6px;
+      }
+      .login-box p {
+        color: var(--sub);
+        font-size: 0.85rem;
+        margin-bottom: 26px;
+      }
+      .login-box input {
+        width: 100%;
+        padding: 13px 16px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        color: white;
+        font-size: 0.95rem;
+        outline: none;
+        margin-bottom: 14px;
+        font-family: inherit;
+        transition: all 0.3s;
+      }
+      .login-box input::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+      }
+      .login-box input:focus {
+        border-color: rgba(106, 13, 173, 0.7);
+      }
+      .btn-admin-login {
+        width: 100%;
+        padding: 14px;
+        font-size: 1rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--primary), #1a1a6e);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(106, 13, 173, 0.4);
+        transition: all 0.3s;
+      }
+      .btn-admin-login:hover {
+        transform: translateY(-2px);
+      }
+      .login-err {
+        color: #ff7675;
+        font-size: 0.85rem;
+        margin-top: 10px;
+        display: none;
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 900px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .main-content {
+          margin-left: 0;
+        }
+        .charts-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ADMIN LOGIN OVERLAY -->
+    <div class="login-overlay" id="loginOverlay">
+      <div class="login-box">
+        <div class="admin-icon">🛡️</div>
+        <h2>Admin Panel</h2>
+        <p>CampusEvents — Super Admin Access</p>
+        <input
+          type="email"
+          id="adminEmail"
+          placeholder="Admin Email"
+          value="admin@campus.com"
+        />
+        <input type="password" id="adminPass" placeholder="Password" />
+        <button class="btn-admin-login" onclick="adminLogin()">
+          🔐 Login as Admin
+        </button>
+        <div class="login-err" id="loginErr"></div>
+        <p style="margin-top: 16px; font-size: 0.8rem; color: var(--sub)">
+          <a
+            href="dashboard.html"
+            style="color: var(--accent); text-decoration: none"
+            >← Back to Student Dashboard</a
+          >
+        </p>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <h2>🎓 CampusAdmin</h2>
+        <p>Super Admin Panel v1.0</p>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Overview</div>
+        <button
+          class="sidebar-link active"
+          onclick="showAdminSection('dashboard')"
+        >
+          📊 Dashboard
+        </button>
+        <button class="sidebar-link" onclick="showAdminSection('analytics')">
+          📈 Analytics
+        </button>
+        <div class="nav-section">Management</div>
+        <button class="sidebar-link" onclick="showAdminSection('users')">
+          👥 Users <span class="badge-count" id="userCount">0</span>
+        </button>
+        <button class="sidebar-link" onclick="showAdminSection('events')">
+          📅 Events <span class="badge-count" id="eventCount">0</span>
+        </button>
+        <button
+          class="sidebar-link"
+          onclick="showAdminSection('registrations')"
+        >
+          ✅ Registrations
+        </button>
+        <div class="nav-section">Settings</div>
+        <button class="sidebar-link" onclick="showAdminSection('settings')">
+          ⚙️ Settings
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="admin-info">
+          <div class="admin-avatar">🛡️</div>
+          <div>
+            <div class="admin-name" id="adminNameDisplay">Super Admin</div>
+            <div class="admin-role">Administrator</div>
+          </div>
+        </div>
+        <button class="btn-admin-logout" onclick="adminLogout()">
+          🚪 Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <div class="topbar">
+        <h1>Admin <span>Dashboard</span></h1>
+        <div class="topbar-right">
+          <div class="time-badge" id="clockBadge">🕐 --:--:--</div>
+        </div>
+      </div>
+
+      <!-- DASHBOARD SECTION -->
+      <div class="admin-section active" id="sec-dashboard">
+        <div class="stats-grid" id="adminStatsGrid">
+          <!-- filled by JS -->
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3>📊 Events by Category</h3>
+            <div class="bar-chart" id="catChart"></div>
+          </div>
+          <div class="chart-card">
+            <h3>🏫 Top Colleges by Events</h3>
+            <div class="bar-chart" id="collegeChart"></div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <h3>🆕 Recent Users</h3>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>College</th>
+                <th>Role</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody id="recentUsersTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ANALYTICS SECTION -->
+      <div class="admin-section" id="sec-analytics">
+        <div class="stats-grid" id="analyticsStats"></div>
+        <div class="charts-grid">
+          <div class="chart-card" style="grid-column: 1/-1">
+            <h3>📅 Monthly Registrations</h3>
+            <div class="bar-chart" id="monthlyChart"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USERS SECTION -->
+      <div class="admin-section" id="sec-users">
+        <div class="table-wrap">
+          <div class="table-header">
+            <h3>👥 All Registered Users</h3>
+            <input
+              class="search-input"
+              placeholder="🔍 Search users..."
+              oninput="searchUsers(this.value)"
+            />
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>College</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTable"></tbody>
+          </table>
+        </div>
+        <div
+          class="pagination"
+          id="userPagination"
+          style="display: flex; gap: 8px; margin-top: 16px"
+        ></div>
+      </div>
+
+      <!-- EVENTS SECTION -->
+      <div class="admin-section" id="sec-events">
+        <div class="table-wrap">
+          <div class="table-header">
+            <h3>📅 All Events</h3>
+            <div style="display: flex; gap: 8px">
+              <select
+                onchange="filterAdminEvents(this.value)"
+                style="
+                  padding: 8px 14px;
+                  background: rgba(255, 255, 255, 0.06);
+                  border: 1px solid var(--border);
+                  color: var(--text);
+                  border-radius: 10px;
+                  outline: none;
+                "
+              >
+                <option value="">All Status</option>
+                <option value="approved">Approved</option>
+                <option value="pending">Pending</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <input
+                class="search-input"
+                placeholder="🔍 Search events..."
+                oninput="searchAdminEvents(this.value)"
+              />
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>College</th>
+                <th>Category</th>
+                <th>Date</th>
+                <th>Seats</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="eventsTable"></tbody>
+          </table>
+        </div>
+        <div
+          class="pagination"
+          id="eventPagination"
+          style="display: flex; gap: 8px; margin-top: 16px"
+        ></div>
+      </div>
+
+      <!-- REGISTRATIONS SECTION -->
+      <div class="admin-section" id="sec-registrations">
+        <div class="table-wrap">
+          <div class="table-header">
+            <h3>✅ All Registrations</h3>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th>College</th>
+                <th>Event</th>
+                <th>Event College</th>
+                <th>Date Registered</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="regsTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SETTINGS SECTION -->
+      <div class="admin-section" id="sec-settings">
+        <div style="max-width: 500px">
+          <div class="table-wrap" style="padding: 24px">
+            <h3 style="margin-bottom: 20px; color: var(--accent)">
+              ⚙️ Admin Settings
+            </h3>
+            <div class="ef-group">
+              <label>Site Name</label>
+              <input type="text" value="CampusEvents" style="width: 100%" />
+            </div>
+            <div class="ef-group">
+              <label>Admin Email</label>
+              <input type="email" id="settingsEmail" style="width: 100%" />
+            </div>
+            <div class="ef-group">
+              <label>New Password</label>
+              <input
+                type="password"
+                placeholder="Leave blank to keep current"
+                style="width: 100%"
+              />
+            </div>
+            <button class="btn-save" style="margin-top: 10px">
+              💾 Save Settings
+            </button>
+            <div
+              style="
+                margin-top: 24px;
+                padding-top: 20px;
+                border-top: 1px solid var(--border);
+              "
+            >
+              <h4 style="margin-bottom: 12px; color: var(--sub)">
+                🗄️ Database Actions
+              </h4>
+              <button
+                class="btn-tbl btn-del"
+                onclick="alert('Export feature coming soon!')"
+                style="margin-right: 8px"
+              >
+                📤 Export Users CSV
+              </button>
+              <button
+                class="btn-tbl btn-edit"
+                onclick="alert('Backup feature coming soon!')"
+              >
+                💾 Backup Database
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- EDIT EVENT MODAL -->
+    <div class="edit-modal-backdrop" id="editEventModal">
+      <div class="edit-modal">
+        <h3>✏️ Edit Event</h3>
+        <input type="hidden" id="editEventId" />
+        <div class="ef-group">
+          <label>Title</label><input type="text" id="editTitle" />
+        </div>
+        <div class="ef-group">
+          <label>Description</label><textarea id="editDesc"></textarea>
+        </div>
+        <div class="ef-group">
+          <label>Venue</label><input type="text" id="editVenue" />
+        </div>
+        <div class="ef-group">
+          <label>Date</label><input type="date" id="editDate" />
+        </div>
+        <div class="ef-group">
+          <label>Time</label><input type="time" id="editTime" />
+        </div>
+        <div class="ef-group">
+          <label>Total Seats</label><input type="number" id="editSeats" />
+        </div>
+        <div class="ef-group">
+          <label>Status</label>
+          <select id="editStatus">
+            <option value="approved">✅ Approved</option>
+            <option value="pending">⏳ Pending</option>
+            <option value="rejected">❌ Rejected</option>
+            <option value="cancelled">🚫 Cancelled</option>
+          </select>
+        </div>
+        <div class="ef-group">
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              cursor: pointer;
+            "
+          >
+            <input
+              type="checkbox"
+              id="editFeatured"
+              style="width: auto; padding: 0"
+            />
+            Featured Event
+          </label>
+        </div>
+        <div class="edit-actions">
+          <button class="btn-save" onclick="saveEventEdit()">
+            💾 Save Changes
+          </button>
+          <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="adminToast">
+      <span id="adminToastIcon">✅</span>
+      <span id="adminToastMsg">Done!</span>
+    </div>
+
+    <script>
+      const API = "";
+      let adminToken = null;
+      let adminData = null;
+
+      // ── CLOCK ──
+      setInterval(() => {
+        document.getElementById("clockBadge").textContent =
+          "🕐 " + new Date().toLocaleTimeString("en-IN");
+      }, 1000);
+
+      // ── TOAST ──
+      function toast(msg, icon = "✅") {
+        const el = document.getElementById("adminToast");
+        document.getElementById("adminToastIcon").textContent = icon;
+        document.getElementById("adminToastMsg").textContent = msg;
+        el.classList.add("show");
+        setTimeout(() => el.classList.remove("show"), 3500);
+      }
+
+      // ── ADMIN LOGIN ──
+      async function adminLogin() {
+        const email = document.getElementById("adminEmail").value;
+        const pass = document.getElementById("adminPass").value;
+        const err = document.getElementById("loginErr");
+        err.style.display = "none";
+        try {
+          const res = await fetch(`${API}/api/admin/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ email, password: pass }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            adminToken = data.token;
+            adminData = data.admin;
+            localStorage.setItem("adminToken", data.token);
+            localStorage.setItem("adminData", JSON.stringify(data.admin));
+            document.getElementById("loginOverlay").style.display = "none";
+            document.getElementById("adminNameDisplay").textContent =
+              data.admin.username;
+            document.getElementById("settingsEmail").value = data.admin.email;
+            loadAdminDashboard();
+          } else {
+            err.textContent = "❌ " + data.error;
+            err.style.display = "block";
+          }
+        } catch (e) {
+          err.textContent = "❌ Connection error";
+          err.style.display = "block";
+        }
+      }
+
+      // ── LOGOUT ──
+      async function adminLogout() {
+        await fetch(`${API}/api/admin/logout`, {
+          method: "POST",
+          credentials: "include",
+        });
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("adminData");
+        document.getElementById("loginOverlay").style.display = "flex";
+      }
+
+      // ── SECTIONS ──
+      function showAdminSection(name) {
+        document
+          .querySelectorAll(".admin-section")
+          .forEach((s) => s.classList.remove("active"));
+        document
+          .querySelectorAll(".sidebar-link")
+          .forEach((l) => l.classList.remove("active"));
+        document.getElementById("sec-" + name).classList.add("active");
+        event.currentTarget.classList.add("active");
+        if (name === "users") loadUsers();
+        if (name === "events") loadAdminEvents();
+        if (name === "registrations") loadAllRegistrations();
+        if (name === "analytics") loadAnalytics();
+      }
+
+      // ── DASHBOARD ──
+      async function loadAdminDashboard() {
+        try {
+          const res = await fetch(`${API}/api/admin/stats`, {
+            headers: { Authorization: "Bearer " + adminToken },
+          });
+          const data = await res.json();
+          const s = data.stats;
+
+          // Stats Grid
+          const items = [
+            {
+              icon: "👥",
+              num: s.totalUsers,
+              label: "Total Users",
+              change: "+" + s.totalUsers + " total",
+              bar: "#6a0dad",
+            },
+            {
+              icon: "📅",
+              num: s.totalEvents,
+              label: "Total Events",
+              change: s.pendingEvents + " pending",
+              bar: "#f9c74f",
+            },
+            {
+              icon: "✅",
+              num: s.totalRegs,
+              label: "Registrations",
+              change: s.todayRegs + " today",
+              bar: "#27ae60",
+            },
+            {
+              icon: "🟢",
+              num: s.activeUsers,
+              label: "Active Users",
+              change: "Currently active",
+              bar: "#3498db",
+            },
+            {
+              icon: "⏳",
+              num: s.pendingEvents,
+              label: "Pending Events",
+              change: "Need review",
+              bar: "#e74c3c",
+            },
+            {
+              icon: "📊",
+              num: s.todayRegs,
+              label: "Today's Regs",
+              change: "Last 24h",
+              bar: "#a78bfa",
+            },
+          ];
+
+          document.getElementById("adminStatsGrid").innerHTML = items
+            .map(
+              (it) => `
+      <div class="stat-card-3d">
+        <div class="sc-icon">${it.icon}</div>
+        <div class="sc-num">${it.num}</div>
+        <div class="sc-label">${it.label}</div>
+        <div class="sc-change">📈 ${it.change}</div>
+        <div class="sc-bar" style="background:linear-gradient(90deg,${it.bar},#a78bfa)"></div>
+      </div>`,
+            )
+            .join("");
+
+          document.getElementById("userCount").textContent = s.totalUsers;
+          document.getElementById("eventCount").textContent = s.totalEvents;
+
+          // Category Chart
+          const maxCat = Math.max(...data.categoryStats.map((c) => c.count), 1);
+          document.getElementById("catChart").innerHTML = data.categoryStats
+            .map(
+              (c) => `
+      <div class="bar-item">
+        <div class="bar-label">${c.category}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${((c.count / maxCat) * 100).toFixed(0)}%">${c.count}</div></div>
+      </div>`,
+            )
+            .join("");
+
+          // College Chart
+          const maxCol = Math.max(...data.collegeStats.map((c) => c.count), 1);
+          document.getElementById("collegeChart").innerHTML = data.collegeStats
+            .map(
+              (c) => `
+      <div class="bar-item">
+        <div class="bar-label" style="font-size:0.7rem;">${c.college.substring(0, 14)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${((c.count / maxCol) * 100).toFixed(0)}%">${c.count}</div></div>
+      </div>`,
+            )
+            .join("");
+
+          // Recent Users
+          document.getElementById("recentUsersTable").innerHTML =
+            data.recentUsers
+              .map(
+                (u) => `
+      <tr>
+        <td><strong>${u.full_name}</strong></td>
+        <td style="color:rgba(255,255,255,0.5);">${u.email}</td>
+        <td>${u.college}</td>
+        <td><span class="tbl-badge badge-${u.role === "admin" ? "rejected" : "approved"}">${u.role}</span></td>
+        <td style="color:rgba(255,255,255,0.5);">${new Date(u.created_at).toLocaleDateString()}</td>
+      </tr>`,
+              )
+              .join("");
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      // ── ANALYTICS ──
+      function loadAnalytics() {
+        fetch(`${API}/api/admin/stats`, {
+          headers: { Authorization: "Bearer " + adminToken },
+        })
+          .then((r) => r.json())
+          .then((data) => {
+            const s = data.stats;
+            document.getElementById("analyticsStats").innerHTML = `
+      <div class="stat-card-3d"><div class="sc-icon">🎯</div>
+        <div class="sc-num">${s.totalRegs}</div>
+        <div class="sc-label">Total Registrations</div><div class="sc-bar"></div></div>
+      <div class="stat-card-3d"><div class="sc-icon">📊</div>
+        <div class="sc-num">${s.todayRegs}</div>
+        <div class="sc-label">Today's Registrations</div><div class="sc-bar"></div></div>
+      <div class="stat-card-3d"><div class="sc-icon">🏫</div>
+        <div class="sc-num">${data.collegeStats.length}</div>
+        <div class="sc-label">Active Colleges</div><div class="sc-bar"></div></div>`;
+            const max = Math.max(...data.monthlyRegs.map((m) => m.count), 1);
+            document.getElementById("monthlyChart").innerHTML = data.monthlyRegs
+              .map(
+                (m) => `
+      <div class="bar-item">
+        <div class="bar-label">${m.month}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${((m.count / max) * 100).toFixed(0)}%">${m.count}</div></div>
+      </div>`,
+              )
+              .join("");
+          });
+      }
+
+      // ── LOAD USERS ──
+      let userPage = 1,
+        userSearch = "";
+      function loadUsers(page = 1) {
+        userPage = page;
+        fetch(
+          `${API}/api/admin/users?page=${page}&limit=15&search=${userSearch}`,
+          { headers: { Authorization: "Bearer " + adminToken } },
+        )
+          .then((r) => r.json())
+          .then((data) => {
+            const tbody = document.getElementById("usersTable");
+            tbody.innerHTML = data.users
+              .map(
+                (u, i) => `
+      <tr>
+        <td>${(page - 1) * 15 + i + 1}</td>
+        <td><strong>${u.full_name}</strong></td>
+        <td style="color:rgba(255,255,255,0.55);">${u.email}</td>
+        <td>${u.college}</td>
+        <td>
+          <select onchange="updateUserRole(${u.id},this.value,'${u.is_active}')"
+            style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+                   color:white;padding:4px 8px;border-radius:6px;font-size:0.78rem;">
+            <option ${u.role === "student" ? "selected" : ""} value="student">Student</option>
+            <option ${u.role === "college_admin" ? "selected" : ""} value="college_admin">College Admin</option>
+          </select>
+        </td>
+        <td><span class="tbl-badge badge-${u.is_active ? "active" : "inactive"}">${u.is_active ? "Active" : "Banned"}</span></td>
+        <td style="color:rgba(255,255,255,0.5);">${new Date(u.created_at).toLocaleDateString()}</td>
+        <td class="tbl-actions">
+          <button class="btn-tbl btn-toggle" onclick="toggleUser(${u.id},${u.is_active},'${u.role}')">
+            ${u.is_active ? "🚫 Ban" : "✅ Unban"}
+          </button>
+          <button class="btn-tbl btn-del" onclick="deleteUser(${u.id})">🗑️</button>
+        </td>
+      </tr>`,
+              )
+              .join("");
+            // Pagination
+            const pages = Math.ceil(data.total / 15);
+            const pag = document.getElementById("userPagination");
+            pag.innerHTML = "";
+            for (let i = 1; i <= pages; i++) {
+              const b = document.createElement("button");
+              b.className = "page-btn" + (i === page ? " active" : "");
+              b.textContent = i;
+              b.onclick = () => loadUsers(i);
+              b.style.cssText =
+                "width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);cursor:pointer;";
+              pag.appendChild(b);
+            }
+          });
+      }
+      function searchUsers(v) {
+        userSearch = v;
+        loadUsers(1);
+      }
+
+      async function toggleUser(id, active, role) {
+        const res = await fetch(`${API}/api/admin/users/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + adminToken,
+          },
+          body: JSON.stringify({ is_active: active ? 0 : 1, role }),
+        });
+        const d = await res.json();
+        if (d.success) {
+          toast(active ? "🚫 User banned" : "✅ User unbanned");
+          loadUsers(userPage);
+        }
+      }
+      async function updateUserRole(id, role, active) {
+        await fetch(`${API}/api/admin/users/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + adminToken,
+          },
+          body: JSON.stringify({ is_active: parseInt(active), role }),
+        });
+        toast("✏️ Role updated");
+      }
+      async function deleteUser(id) {
+        if (!confirm("Permanently delete this user?")) return;
+        const res = await fetch(`${API}/api/admin/users/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: "Bearer " + adminToken },
+        });
+        const d = await res.json();
+        if (d.success) {
+          toast("🗑️ User deleted", "🗑️");
+          loadUsers(userPage);
+        }
+      }
+
+      // ── LOAD EVENTS ──
+      let evPage = 1,
+        evStatus = "",
+        evSearch = "";
+      function loadAdminEvents(page = 1) {
+        evPage = page;
+        fetch(
+          `${API}/api/admin/events?page=${page}&limit=15&status=${evStatus}&search=${evSearch}`,
+          { headers: { Authorization: "Bearer " + adminToken } },
+        )
+          .then((r) => r.json())
+          .then((data) => {
+            const tbody = document.getElementById("eventsTable");
+            tbody.innerHTML = data.events
+              .map(
+                (ev, i) => `
+      <tr>
+        <td>${(page - 1) * 15 + i + 1}</td>
+        <td><strong>${ev.title}</strong><br/><small style="color:rgba(255,255,255,0.4);">${ev.organizer_name || "—"}</small></td>
+        <td>${ev.college}</td>
+        <td>${ev.category}</td>
+        <td>${new Date(ev.event_date).toLocaleDateString()}</td>
+        <td>${ev.filled_seats}/${ev.total_seats}</td>
+        <td><span class="tbl-badge badge-${ev.status}">${ev.status}</span></td>
+        <td class="tbl-actions">
+          <button class="btn-tbl btn-edit" onclick='openEditEvent(${JSON.stringify(ev).replace(/'/g, "\\`")})'>✏️ Edit</button>
+          <button class="btn-tbl btn-del" onclick="deleteAdminEvent(${ev.id})">🗑️ Del</button>
+          <button class="btn-tbl btn-view" onclick="viewRegistrations(${ev.id},'${ev.title}')">👁️ Regs</button>
+        </td>
+      </tr>`,
+              )
+              .join("");
+            const pages = Math.ceil(data.total / 15);
+            const pag = document.getElementById("eventPagination");
+            pag.innerHTML = "";
+            for (let i = 1; i <= pages; i++) {
+              const b = document.createElement("button");
+              b.className = "page-btn" + (i === page ? " active" : "");
+              b.textContent = i;
+              b.onclick = () => loadAdminEvents(i);
+              b.style.cssText =
+                "width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);cursor:pointer;";
+              pag.appendChild(b);
+            }
+          });
+      }
+      function filterAdminEvents(v) {
+        evStatus = v;
+        loadAdminEvents(1);
+      }
+      function searchAdminEvents(v) {
+        evSearch = v;
+        loadAdminEvents(1);
+      }
+
+      function openEditEvent(ev) {
+        document.getElementById("editEventId").value = ev.id;
+        document.getElementById("editTitle").value = ev.title;
+        document.getElementById("editDesc").value = ev.description || "";
+        document.getElementById("editVenue").value = ev.venue;
+        document.getElementById("editDate").value =
+          ev.event_date?.split("T")[0];
+        document.getElementById("editTime").value = ev.event_time?.slice(0, 5);
+        document.getElementById("editSeats").value = ev.total_seats;
+        document.getElementById("editStatus").value = ev.status;
+        document.getElementById("editFeatured").checked = !!ev.featured;
+        document.getElementById("editEventModal").classList.add("show");
+      }
+      function closeEditModal() {
+        document.getElementById("editEventModal").classList.remove("show");
+      }
+
+      async function saveEventEdit() {
+        const id = document.getElementById("editEventId").value;
+        const body = {
+          title: document.getElementById("editTitle").value,
+          description: document.getElementById("editDesc").value,
+          venue: document.getElementById("editVenue").value,
+          event_date: document.getElementById("editDate").value,
+          event_time: document.getElementById("editTime").value,
+          total_seats: document.getElementById("editSeats").value,
+          status: document.getElementById("editStatus").value,
+          featured: document.getElementById("editFeatured").checked,
+        };
+        const res = await fetch(`${API}/api/admin/events/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + adminToken,
+          },
+          body: JSON.stringify(body),
+        });
+        const d = await res.json();
+        closeEditModal();
+        if (d.success) {
+          toast("✅ Event updated!");
+          loadAdminEvents(evPage);
+        }
+      }
+
+      async function deleteAdminEvent(id) {
+        if (!confirm("Delete this event and all its registrations?")) return;
+        const res = await fetch(`${API}/api/admin/events/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: "Bearer " + adminToken },
+        });
+        const d = await res.json();
+        if (d.success) {
+          toast("🗑️ Event deleted", "🗑️");
+          loadAdminEvents(evPage);
+        }
+      }
+
+      // ── ALL REGISTRATIONS ──
+      function loadAllRegistrations() {
+        // Fetch all events, then for each event fetch registrations
+        fetch(`${API}/api/admin/events?limit=100`, {
+          headers: { Authorization: "Bearer " + adminToken },
+        })
+          .then((r) => r.json())
+          .then(async (data) => {
+            const tbody = document.getElementById("regsTable");
+            let rows = [];
+            for (const ev of (data.events || []).slice(0, 10)) {
+              const r = await fetch(
+                `${API}/api/admin/events/${ev.id}/registrations`,
+                { headers: { Authorization: "Bearer " + adminToken } },
+              );
+              const rdata = await r.json();
+              (rdata.registrations || []).forEach((reg) => {
+                rows.push({
+                  ...reg,
+                  event_title: ev.title,
+                  event_college: ev.college,
+                });
+              });
+            }
+            tbody.innerHTML = rows
+              .map(
+                (r, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td><strong>${r.full_name}</strong></td>
+        <td>${r.college}</td>
+        <td>${r.event_title}</td>
+        <td>${r.event_college}</td>
+        <td>${new Date(r.registered_at).toLocaleDateString()}</td>
+        <td><span class="tbl-badge badge-${r.status === "registered" ? "approved" : "pending"}">${r.status}</span></td>
+      </tr>`,
+              )
+              .join("");
+          });
+      }
+
+      async function viewRegistrations(eventId, title) {
+        const res = await fetch(
+          `${API}/api/admin/events/${eventId}/registrations`,
+          { headers: { Authorization: "Bearer " + adminToken } },
+        );
+        const data = await res.json();
+        const regs = data.registrations || [];
+        alert(
+          `📋 Registrations for: ${title}\n\n${regs.length} registered\n\n` +
+            regs
+              .map((r) => `• ${r.full_name} (${r.email}) — ${r.college}`)
+              .join("\n"),
+        );
+      }
+
+      // ── AUTO-LOGIN IF TOKEN EXISTS ──
+      (function () {
+        const t = localStorage.getItem("adminToken");
+        const d = localStorage.getItem("adminData");
+        if (t && d) {
+          adminToken = t;
+          adminData = JSON.parse(d);
+          document.getElementById("loginOverlay").style.display = "none";
+          document.getElementById("adminNameDisplay").textContent =
+            adminData.username;
+          document.getElementById("settingsEmail").value =
+            adminData.email || "";
+          loadAdminDashboard();
+        }
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Login — CampusEvents</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        min-height: 100vh;
+        background: linear-gradient(
+          135deg,
+          #0a0a2e 0%,
+          #1a0050 40%,
+          #0d0d40 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Segoe UI", sans-serif;
+        overflow: hidden;
+        position: relative;
+      }
+      /* ANIMATED BG PARTICLES */
+      .particles {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .particle {
+        position: absolute;
+        border-radius: 50%;
+        animation: float linear infinite;
+        opacity: 0.15;
+      }
+      @keyframes float {
+        0% {
+          transform: translateY(100vh) rotate(0deg);
+        }
+        100% {
+          transform: translateY(-100px) rotate(720deg);
+        }
+      }
+      /* 3D CARD */
+      .auth-container {
+        perspective: 1000px;
+        width: 100%;
+        max-width: 460px;
+        padding: 20px;
+      }
+      .auth-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 24px;
+        padding: 44px 40px;
+        transform-style: preserve-3d;
+        box-shadow:
+          0 25px 50px rgba(0, 0, 0, 0.5),
+          0 0 0 1px rgba(255, 255, 255, 0.05),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        animation: cardFloat 4s ease-in-out infinite;
+        position: relative;
+        overflow: hidden;
+      }
+      @keyframes cardFloat {
+        0%,
+        100% {
+          transform: translateY(0) rotateX(2deg);
+        }
+        50% {
+          transform: translateY(-8px) rotateX(-2deg);
+        }
+      }
+      .auth-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(106, 13, 173, 0.3),
+          rgba(26, 26, 110, 0.3)
+        );
+        pointer-events: none;
+      }
+      .logo {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .logo-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #6a0dad, #1a1a6e);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin: 0 auto 12px;
+        box-shadow: 0 8px 25px rgba(106, 13, 173, 0.5);
+        transform: translateZ(30px);
+      }
+      .logo h2 {
+        color: white;
+        font-size: 1.6rem;
+        font-weight: 800;
+      }
+      .logo p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.85rem;
+        margin-top: 4px;
+      }
+      .tabs {
+        display: flex;
+        gap: 4px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 4px;
+        margin-bottom: 28px;
+      }
+      .tab {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+        border-radius: 10px;
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s;
+        border: none;
+        background: none;
+      }
+      .tab.active {
+        background: linear-gradient(135deg, #6a0dad, #1a1a6e);
+        color: white;
+        box-shadow: 0 4px 15px rgba(106, 13, 173, 0.4);
+      }
+      .form-group {
+        margin-bottom: 18px;
+        position: relative;
+      }
+      .form-group label {
+        display: block;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      .input-wrap {
+        position: relative;
+      }
+      .input-wrap .icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.5);
+      }
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 13px 14px 13px 42px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        color: white;
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.3s;
+        font-family: inherit;
+      }
+      .form-group input::placeholder {
+        color: rgba(255, 255, 255, 0.35);
+      }
+      .form-group input:focus,
+      .form-group select:focus {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(106, 13, 173, 0.8);
+        box-shadow: 0 0 0 3px rgba(106, 13, 173, 0.2);
+      }
+      .form-group select option {
+        background: #1a1a6e;
+        color: white;
+      }
+      .btn-auth {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #6a0dad, #1a1a6e);
+        color: white;
+        font-size: 1rem;
+        font-weight: 700;
+        border: none;
+        border-radius: 14px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        margin-top: 6px;
+        box-shadow: 0 6px 20px rgba(106, 13, 173, 0.4);
+        transition: all 0.3s;
+      }
+      .btn-auth:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(106, 13, 173, 0.5);
+      }
+      .btn-auth::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.15),
+          transparent
+        );
+        pointer-events: none;
+      }
+      .btn-auth.loading::after {
+        content: "";
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      @keyframes spin {
+        to {
+          transform: translateY(-50%) rotate(360deg);
+        }
+      }
+      .divider {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.3);
+        margin: 18px 0;
+        font-size: 0.85rem;
+        position: relative;
+      }
+      .divider::before,
+      .divider::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        width: 40%;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .divider::before {
+        left: 0;
+      }
+      .divider::after {
+        right: 0;
+      }
+      .alert {
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        margin-bottom: 16px;
+        display: none;
+        animation: slideIn 0.3s ease;
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .alert-error {
+        background: rgba(231, 76, 60, 0.2);
+        border: 1px solid rgba(231, 76, 60, 0.4);
+        color: #ff6b6b;
+      }
+      .alert-success {
+        background: rgba(39, 174, 96, 0.2);
+        border: 1px solid rgba(39, 174, 96, 0.4);
+        color: #55efc4;
+      }
+      .admin-link {
+        text-align: center;
+        margin-top: 16px;
+      }
+      .admin-link a {
+        color: rgba(249, 199, 79, 0.8);
+        font-size: 0.85rem;
+        text-decoration: none;
+      }
+      .admin-link a:hover {
+        color: #f9c74f;
+      }
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      @media (max-width: 480px) {
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="particles" id="particles"></div>
+
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="logo">
+          <div class="logo-icon">🎓</div>
+          <h2>CampusEvents</h2>
+          <p>Connect · Discover · Participate</p>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" onclick="showTab('login')">
+            🔐 Login
+          </button>
+          <button class="tab" onclick="showTab('register')">📝 Register</button>
+        </div>
+
+        <!-- ALERTS -->
+        <div class="alert alert-error" id="alertError"></div>
+        <div class="alert alert-success" id="alertSuccess"></div>
+
+        <!-- LOGIN FORM -->
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label>Email Address</label>
+            <div class="input-wrap">
+              <span class="icon">📧</span>
+              <input
+                type="email"
+                id="loginEmail"
+                placeholder="your@email.com"
+                required
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <div class="input-wrap">
+              <span class="icon">🔒</span>
+              <input
+                type="password"
+                id="loginPass"
+                placeholder="Enter password"
+                required
+              />
+            </div>
+          </div>
+          <button type="submit" class="btn-auth" id="loginBtn">
+            🚀 Login to CampusEvents
+          </button>
+        </form>
+
+        <!-- REGISTER FORM -->
+        <form
+          id="registerForm"
+          style="display: none"
+          onsubmit="handleRegister(event)"
+        >
+          <div class="form-row">
+            <div class="form-group">
+              <label>Full Name *</label>
+              <div class="input-wrap">
+                <span class="icon">👤</span>
+                <input
+                  type="text"
+                  id="regName"
+                  placeholder="Your name"
+                  required
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <div class="input-wrap">
+                <span class="icon">📱</span>
+                <input type="tel" id="regPhone" placeholder="+91 9999..." />
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Email Address *</label>
+            <div class="input-wrap">
+              <span class="icon">📧</span>
+              <input
+                type="email"
+                id="regEmail"
+                placeholder="your@email.com"
+                required
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>College Name *</label>
+            <div class="input-wrap">
+              <span class="icon">🏫</span>
+              <input
+                type="text"
+                id="regCollege"
+                placeholder="e.g. IIT Delhi"
+                required
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Department</label>
+              <div class="input-wrap">
+                <span class="icon">📚</span>
+                <input type="text" id="regDept" placeholder="e.g. CSE" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Password *</label>
+              <div class="input-wrap">
+                <span class="icon">🔒</span>
+                <input
+                  type="password"
+                  id="regPass"
+                  placeholder="Min 6 chars"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+          <button
+            type="submit"
+            class="btn-auth"
+            id="regBtn"
+            href="dashboard.html"
+          >
+            ✨ Create Account
+          </button>
+        </form>
+
+        <div class="admin-link">
+          <a
+            href="admin
+          .html"
+            >🛡️ Admin Panel →</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // PARTICLES
+      (function () {
+        const p = document.getElementById("particles");
+        const colors = ["#6a0dad", "#1a1a6e", "#f9c74f", "#e74c3c", "#3498db"];
+        for (let i = 0; i < 30; i++) {
+          const d = document.createElement("div");
+          d.className = "particle";
+          const s = Math.random() * 20 + 8;
+          d.style.cssText = `width:${s}px;height:${s}px;left:${Math.random() * 100}%;
+      background:${colors[Math.floor(Math.random() * colors.length)]};
+      animation-duration:${Math.random() * 15 + 8}s;
+      animation-delay:${Math.random() * 10}s;`;
+          p.appendChild(d);
+        }
+      })();
+
+      function showTab(tab) {
+        document
+          .querySelectorAll(".tab")
+          .forEach((t) => t.classList.remove("active"));
+        event.target.classList.add("active");
+        document.getElementById("loginForm").style.display =
+          tab === "login" ? "block" : "none";
+        document.getElementById("registerForm").style.display =
+          tab === "register" ? "block" : "none";
+        hideAlerts();
+      }
+
+      function showAlert(type, msg) {
+        hideAlerts();
+        const el = document.getElementById(
+          type === "error" ? "alertError" : "alertSuccess",
+        );
+        el.textContent = msg;
+        el.style.display = "block";
+      }
+      function hideAlerts() {
+        document.getElementById("alertError").style.display = "none";
+        document.getElementById("alertSuccess").style.display = "none";
+      }
+
+      async function handleLogin(e) {
+        e.preventDefault();
+        const btn = document.getElementById("loginBtn");
+        btn.classList.add("loading");
+        btn.disabled = true;
+        try {
+          const res = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              email: document.getElementById("loginEmail").value,
+              password: document.getElementById("loginPass").value,
+            }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            localStorage.setItem("user", JSON.stringify(data.user));
+            localStorage.setItem("token", data.token);
+            showAlert("success", "✅ Login successful! Redirecting...");
+            setTimeout(() => (window.location.href = "dashboard.html"), 1500);
+          } else {
+            showAlert("error", "❌ " + data.error);
+          }
+        } catch (err) {
+          showAlert("error", "❌ Connection error. Try again.");
+        } finally {
+          btn.classList.remove("loading");
+          btn.disabled = false;
+        }
+      }
+
+      async function handleRegister(e) {
+        e.preventDefault();
+        const btn = document.getElementById("regBtn");
+        btn.classList.add("loading");
+        btn.disabled = true;
+        try {
+          const res = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              full_name: document.getElementById("regName").value,
+              email: document.getElementById("regEmail").value,
+              password: document.getElementById("regPass").value,
+              college: document.getElementById("regCollege").value,
+              department: document.getElementById("regDept").value,
+              phone: document.getElementById("regPhone").value,
+            }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            showAlert(
+              "success",
+              "🎉 Account created! Check your email & login.",
+            );
+            document.getElementById("registerForm").reset();
+            setTimeout(() => showTab("login"), 2000);
+          } else {
+            showAlert("error", "❌ " + data.error);
+          }
+        } catch (err) {
+          showAlert("error", "❌ Connection error.");
+        } finally {
+          btn.classList.remove("loading");
+          btn.disabled = false;
+        }
+      }
+
+      // Redirect if already logged in
+      if (localStorage.getItem("token"))
+        window.location.href = "dashboard.html";
+    </script>
+  </body>
+</html>
