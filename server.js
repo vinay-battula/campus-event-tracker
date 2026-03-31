@@ -230,6 +230,8 @@ app.post("/api/auth/login", async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
+      secure: true, // 🔥 IMPORTANT for HTTPS (Render)
+      sameSite: "none", // 🔥 IMPORTANT
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -327,6 +329,8 @@ app.post("/api/admin/login", async (req, res) => {
 
     res.cookie("adminToken", token, {
       httpOnly: true,
+      secure: true,
+      sameSite: "none",
       maxAge: 24 * 60 * 60 * 1000,
     });
 
