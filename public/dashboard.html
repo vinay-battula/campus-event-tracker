@@ -1315,33 +1315,22 @@
       let userRegistrations = [];
 
       // ── AUTH CHECK ──
-      // ── AUTH CHECK ──
-(async function () {
-  try {
-    const res = await fetch(`${API}/api/auth/me`, {
-      credentials: "include",
-    });
+      (function () {
+  const u = localStorage.getItem("user");
+  const t = localStorage.getItem("token");
 
-    const data = await res.json();
-
-    if (!data.user) {
-      window.location.href = "/login.html";
-      return;
-    }
-
-    currentUser = data.user;
-
-    document.getElementById("userName").textContent =
-      currentUser.full_name;
-
-    document.getElementById("userAvatar").textContent =
-      currentUser.full_name[0].toUpperCase();
-
-  } catch (e) {
-    window.location.href = "/login.html";
+  if (!u || !t) {
+    // ❌ redirect remove cheyyali
+    alert("Please login first");
+    return;
   }
-})();
 
+  currentUser = JSON.parse(u);
+
+  document.getElementById("userName").textContent = currentUser.name;
+  document.getElementById("userAvatar").textContent =
+    currentUser.name[0].toUpperCase();
+})();
       // ── TOAST ──
       function toast(msg, icon = "✅", duration = 3500) {
         const el = document.getElementById("toast");
@@ -1689,7 +1678,7 @@
         });
         localStorage.removeItem("user");
         localStorage.removeItem("token");
-        window.location.href = "login.html";
+        window.location.href = "index.html";
       }
 
       // ── INIT ──
