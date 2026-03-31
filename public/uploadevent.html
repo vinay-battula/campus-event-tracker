@@ -558,11 +558,10 @@
         <div class="alert alert-err" id="errBox"></div>
         <div class="alert alert-ok" id="okBox"></div>
 
-        <form
-          id="uploadForm"
-          enctype="multipart/form-data"
-          onsubmit="submitEvent(event)"
-        >
+        <form id="uploadForm" onsubmit="uploadEvent(event)">
+  <input type="text" name="title" required />
+  <button type="submit" class="btn-upload">Submit</button>
+</form>
           <!-- SECTION 1: BASIC INFO -->
           <div class="fr">
             <div class="fg">
@@ -720,7 +719,7 @@
             <img id="previewImg" class="preview-img" />
           </div>
 
-          <button type="submit" class="btn-submit" id="submitBtn">
+          <button type="submit" class="btn-upload">Submit</button>
             🚀 Upload Event to CampusEvents
           </button>
         </form>
