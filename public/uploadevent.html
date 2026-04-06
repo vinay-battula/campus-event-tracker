@@ -63,6 +63,7 @@
         background: linear-gradient(135deg, #fff, var(--a));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        cursor: pointer;
       }
       .nav-menu {
         display: flex;
@@ -77,6 +78,7 @@
         font-size: 0.87rem;
         font-weight: 600;
         transition: all 0.3s;
+        cursor: pointer;
       }
       .nav-menu a:hover,
       .nav-menu a.active {
@@ -171,7 +173,6 @@
         box-shadow:
           0 20px 50px rgba(0, 0, 0, 0.35),
           0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-        transform-style: preserve-3d;
         animation: cardUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       }
       @keyframes cardUp {
@@ -354,9 +355,13 @@
         transition: all 0.3s;
         box-shadow: 0 8px 28px rgba(106, 13, 173, 0.4);
       }
-      .btn-submit:hover {
+      .btn-submit:hover:not(:disabled) {
         transform: translateY(-2px);
         box-shadow: 0 14px 36px rgba(106, 13, 173, 0.55);
+      }
+      .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
       }
       .btn-submit::before {
         content: "";
@@ -480,6 +485,7 @@
         line-height: 1.6;
       }
       .suc-btn {
+        display: inline-block;
         padding: 14px 36px;
         background: linear-gradient(135deg, var(--p), var(--d));
         color: #fff;
@@ -511,12 +517,18 @@
   <body>
     <!-- NAV -->
     <nav>
-      <a href="index.html" class="nav-logo">🎓 CampusEvents</a>
+      <a class="nav-logo" onclick="navigate('dashboard.html')"
+        >🎓 CampusEvents</a
+      >
       <ul class="nav-menu">
-        <li><a href="dashboard.html">🔍 Explore</a></li>
-        <li><a href="upload.html" class="active">📤 Upload Event</a></li>
-        <li><a href="my-events.html">📋 My Events</a></li>
-        <li><a href="my-regs.html">✅ Registrations</a></li>
+        <li><a onclick="navigate('dashboard.html')">🔍 Explore</a></li>
+        <li>
+          <a onclick="navigate('upload.html')" class="active"
+            >📤 Upload Event</a
+          >
+        </li>
+        <li><a onclick="navigate('my-events.html')">📋 My Events</a></li>
+        <li><a onclick="navigate('my-regs.html')">✅ Registrations</a></li>
       </ul>
       <div class="nav-r">
         <div class="user-chip">
@@ -559,9 +571,6 @@
         <div class="alert alert-ok" id="okBox"></div>
 
         <form id="uploadForm" onsubmit="uploadEvent(event)">
-  <input type="text" name="title" required />
-  <button type="submit" class="btn-upload">Submit</button>
-</form>
           <!-- SECTION 1: BASIC INFO -->
           <div class="fr">
             <div class="fg">
@@ -719,7 +728,7 @@
             <img id="previewImg" class="preview-img" />
           </div>
 
-          <button type="submit" class="btn-upload">Submit</button>
+          <button type="submit" id="submitBtn" class="btn-submit">
             🚀 Upload Event to CampusEvents
           </button>
         </form>
@@ -735,10 +744,21 @@
           Your event is now live on CampusEvents.<br />Students from across
           India can now discover & register!
         </p>
-        <a href="dashboard.html" class="suc-btn">🔍 View All Events</a
+        <a
+          href="#"
+          onclick="
+            navigate('dashboard.html');
+            return false;
+          "
+          class="suc-btn"
+          >🔍 View All Events</a
         ><br /><br />
         <a
-          href="my-events.html"
+          href="#"
+          onclick="
+            navigate('my-events.html');
+            return false;
+          "
           style="color: var(--a); font-size: 0.88rem; text-decoration: none"
           >📋 View My Events →</a
         >
@@ -746,6 +766,10 @@
     </div>
 
     <script>
+      function navigate(page) {
+        window.location.href = page;
+      }
+
       (() => {
         const u = localStorage.getItem("user"),
           t = localStorage.getItem("token");
@@ -758,12 +782,10 @@
           user.full_name[0].toUpperCase();
         document.getElementById("unEl").textContent =
           user.full_name.split(" ")[0];
-        // Pre-fill college
         const form = document.getElementById("uploadForm");
         form.querySelector('[name="college"]').value = user.college || "";
       })();
 
-      /* POSTER PREVIEW */
       function previewPoster(input) {
         const file = input.files[0];
         if (!file) return;
@@ -795,7 +817,6 @@
         }
       }
 
-      /* STEP INDICATOR */
       function updateSteps(n) {
         for (let i = 1; i <= 3; i++) {
           const el = document.getElementById("si" + i);
@@ -820,7 +841,7 @@
           if (d && t && s) updateSteps(3);
         });
 
-      async function submitEvent(e) {
+      async function uploadEvent(e) {
         e.preventDefault();
         const btn = document.getElementById("submitBtn");
         btn.classList.add("loading");
@@ -842,6 +863,9 @@
           const d = await r.json();
           if (d.success) {
             document.getElementById("successOverlay").classList.add("show");
+            setTimeout(() => {
+              navigate("dashboard.html");
+            }, 2000);
           } else {
             const err = document.getElementById("errBox");
             err.textContent = "❌ " + (d.error || "Upload failed");
